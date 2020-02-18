@@ -196,7 +196,7 @@ module Fastlane
 
             unless gradle_task.nil?
               gradle = Helper::GradleHelper.new(gradle_path: Dir["./gradlew"].last)
-              serial = avd_schemes.map { |x| "emulator-" + x.launch_avd_port }.join(",")
+              serial = avd_schemes.map { |x| "emulator-" + x.launch_avd_port.to_s }.join(",")
 
               UI.message("Using gradle task.".green)
               gradle.trigger(task: params[:gradle_task], flags: params[:gradle_flags], serial: serial)
