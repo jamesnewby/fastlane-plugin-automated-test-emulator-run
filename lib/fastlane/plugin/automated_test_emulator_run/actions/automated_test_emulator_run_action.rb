@@ -316,62 +316,54 @@ module Fastlane
           loop do
             current_time = Time.now
             
-#            if ((current_time - last_scan_ended) * 1000) < interval)
-#            
-#            end
-            
-            sleep(1) until (((Time.now - last_scan_ended) * 1000) >= interval || start_time == last_scan_ended)
+            sleep(1) until ((Time.now - last_scan_ended) * 1000) >= interval
 
-            # Performing single scan over each device
-            if (((current_time - last_scan_ended) * 1000) >= interval || start_time == last_scan_ended)
-              for i in 0...avd_schemes.length
-                avd_schema = avd_schemes[i]
-                avd_controller = avd_controllers[i]
-                avd_param_boot_hash = Hash.new
-                avd_param_status_hash = Hash.new
-                avd_booted = false
+            for i in 0...avd_schemes.length
+              avd_schema = avd_schemes[i]
+              avd_controller = avd_controllers[i]
+              avd_param_boot_hash = Hash.new
+              avd_param_status_hash = Hash.new
+              avd_booted = false
                 
-                # Retreiving device parameters according to config
-                if params[:AVD_wait_for_bootcomplete]
-                  dev_bootcomplete, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "dev.bootcomplete"].join(" "))
-                  avd_param_boot_hash.store("dev.bootcomplete", dev_bootcomplete.strip.eql?("1"))
-                  avd_param_status_hash.store("dev.bootcomplete", dev_bootcomplete)
-                end
+              # Retreiving device parameters according to config
+              if params[:AVD_wait_for_bootcomplete]
+                dev_bootcomplete, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "dev.bootcomplete"].join(" "))
+                avd_param_boot_hash.store("dev.bootcomplete", dev_bootcomplete.strip.eql?("1"))
+                avd_param_status_hash.store("dev.bootcomplete", dev_bootcomplete)
+              end
 
-                if params[:AVD_wait_for_boot_completed] 
-                   sys_boot_completed, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "sys.boot_completed"].join(" "))
-                   avd_param_boot_hash.store("sys.boot_completed", sys_boot_completed.strip.eql?("1"))
-                   avd_param_status_hash.store("sys.boot_completed", sys_boot_completed)
-                end
+              if params[:AVD_wait_for_boot_completed] 
+                sys_boot_completed, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "sys.boot_completed"].join(" "))
+                avd_param_boot_hash.store("sys.boot_completed", sys_boot_completed.strip.eql?("1"))
+                avd_param_status_hash.store("sys.boot_completed", sys_boot_completed)
+              end
 
-                if params[:AVD_wait_for_bootanim]
-                   bootanim, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "init.svc.bootanim"].join(" ")) 
-                   avd_param_boot_hash.store("init.svc.bootanim", bootanim.strip.eql?("stopped"))
-                   avd_param_status_hash.store("init.svc.bootanim", bootanim)
-                end
+              if params[:AVD_wait_for_bootanim]
+                bootanim, _stdeerr, _status = Open3.capture3([avd_controller.command_get_property, "init.svc.bootanim"].join(" ")) 
+                avd_param_boot_hash.store("init.svc.bootanim", bootanim.strip.eql?("stopped"))
+                avd_param_status_hash.store("init.svc.bootanim", bootanim)
+              end
                 
-                # Checking for param statuses
-                avd_param_boot_hash.each do |name, is_booted|
-                  if !is_booted
-                    break
-                  end
-                  avd_booted = true
+              # Checking for param statuses
+              avd_param_boot_hash.each do |name, is_booted|
+                if !is_booted
+                  break
                 end
-                device_boot_statuses.store(avd_schema.avd_name, avd_booted)
+                avd_booted = true
+              end
+              device_boot_statuses.store(avd_schema.avd_name, avd_booted)
 
-                # Plotting current wait results
-                device_log = "Device 'emulator-" + avd_schemes[i].launch_avd_port.to_s + "' launch status:"
-                UI.message(device_log.magenta)
-                avd_param_boot_hash.each do |name, is_booted|
-                  device_log = "'" + name + "' - '" + avd_param_status_hash[name].strip + "' (launched: " + is_booted.to_s + ")"
-                  if is_booted
-                    UI.message(device_log.green)
-                  else
-                    UI.message(device_log.red)
-                  end
+              # Plotting current wait results
+              device_log = "Device 'emulator-" + avd_schemes[i].launch_avd_port.to_s + "' launch status:"
+              UI.message(device_log.magenta)
+              avd_param_boot_hash.each do |name, is_booted|
+                device_log = "'" + name + "' - '" + avd_param_status_hash[name].strip + "' (launched: " + is_booted.to_s + ")"
+                if is_booted
+                  UI.message(device_log.green)
+                else
+                  UI.message(device_log.red)
                 end
               end
-              last_scan_ended = Time.now
             end
          
             # Checking if wait doesn't last too long
