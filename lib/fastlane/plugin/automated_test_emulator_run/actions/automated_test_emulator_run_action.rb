@@ -315,6 +315,12 @@ module Fastlane
 
           loop do
             current_time = Time.now
+            
+#            if ((current_time - last_scan_ended) * 1000) < interval)
+#            
+#            end
+            
+            sleep(1) until (((Time.now - last_scan_ended) * 1000) >= interval || start_time == last_scan_ended)
 
             # Performing single scan over each device
             if (((current_time - last_scan_ended) * 1000) >= interval || start_time == last_scan_ended)
@@ -358,7 +364,11 @@ module Fastlane
                 UI.message(device_log.magenta)
                 avd_param_boot_hash.each do |name, is_booted|
                   device_log = "'" + name + "' - '" + avd_param_status_hash[name].strip + "' (launched: " + is_booted.to_s + ")"
-                  UI.message(device_log.magenta)
+                  if is_booted
+                    UI.message(device_log.green)
+                  else
+                    UI.message(device_log.red)
+                  end
                 end
               end
               last_scan_ended = Time.now
@@ -372,12 +382,13 @@ module Fastlane
             end
 
             # Finishing wait with success if all params are loaded for every device
+            all_params_launched = true
             device_boot_statuses.each do |name, is_booted|
-              if !is_booted
-                break
-              end
-              all_params_launched = true
+              UI.message(["AVD status ", name, "Booted: ", is_booted].join("").yellow)
+              all_params_launched = false unless is_booted
             end
+            UI.message(["AVD All launched: ", all_params_launched].join("").yellow)
+
             if all_params_launched 
               break
             end
