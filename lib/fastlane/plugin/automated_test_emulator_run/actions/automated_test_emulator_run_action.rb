@@ -284,6 +284,7 @@ module Fastlane
               launch_status_hash.each do |name, is_booted|
                 unless (devices.match(name + " device").nil? || is_booted)
                   launch_status_hash[name] = true
+                  UI.message(["AVD Booted ", name, "..."].join("").green)
                 end
                 all_devices_booted = false unless launch_status_hash[name]
               end
