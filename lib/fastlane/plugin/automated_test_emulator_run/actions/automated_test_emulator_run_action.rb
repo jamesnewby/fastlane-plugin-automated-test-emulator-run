@@ -316,7 +316,7 @@ module Fastlane
           loop do
             current_time = Time.now
             
-            sleep(1) until ((Time.now - last_scan_ended) * 1000) >= interval
+            sleep(1000) until ((Time.now - last_scan_ended) * 1000) >= interval
 
             for i in 0...avd_schemes.length
               avd_schema = avd_schemes[i]
