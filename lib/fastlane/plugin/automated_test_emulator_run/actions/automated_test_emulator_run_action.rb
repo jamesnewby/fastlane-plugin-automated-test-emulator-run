@@ -158,6 +158,28 @@ module Fastlane
             
             if all_avd_launched
               UI.message("AVDs Booted!".green)
+              for i in 0...avd_schemes.length
+                  device = ["emulator-", avd_schemes[i].launch_avd_port].join('')
+
+                  key_command = [
+                    adb_controller.adb_path,
+                    "-s",
+                    device,
+                    'shell input keyevent 82'
+                  ]
+                  Action.sh(key_command)
+
+                  dialog_command = [
+                    adb_controller.adb_path,
+                    "-s",
+                    device,
+                    'shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS'
+                  ].join(" ")
+                  Action.sh(dialog_command)
+              end
+              
+              UI.message("Clear Dialogs broadcast sent!".green)
+
               if params[:logcat]
                 for i in 0...avd_schemes.length
                   device = ["emulator-", avd_schemes[i].launch_avd_port].join('')
