@@ -161,13 +161,16 @@ module Fastlane
               for i in 0...avd_schemes.length
                   device = ["emulator-", avd_schemes[i].launch_avd_port].join('')
 
-                  key_command = [
+                  raw_command = [
                     adb_controller.adb_path,
                     "-s",
                     device,
-                    'shell input keyevent 82'
-                  ]
-                  Action.sh(key_command)
+                    'shell input keyevent '
+                  ].join(" ")
+                  
+                  Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
+                  Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
+                  Action.sh(raw_command + 'KEYCODE_ENTER')
 
                   dialog_command = [
                     adb_controller.adb_path,
