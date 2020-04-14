@@ -160,18 +160,30 @@ module Fastlane
               UI.message("AVDs Booted!".green)
               for i in 0...avd_schemes.length
                   device = ["emulator-", avd_schemes[i].launch_avd_port].join('')
-
-                  raw_command = [
+                  
+                  check_command = [
                     adb_controller.adb_path,
                     "-s",
                     device,
-                    'shell input keyevent '
+                    'shell dumpsys window windows 2>/dev/null | grep -i mCurrentFocus'
                   ].join(" ")
-                  
-                  Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
-                  Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
-                  Action.sh(raw_command + 'KEYCODE_ENTER')
+                    
+                  status = Action.sh(check_command)
+                    
+                  if status.include? "Not Responding" 
+                    UI.message(device + " Not responding, dismissing".yellow)
 
+                    raw_command = [
+                      adb_controller.adb_path,
+                      "-s",
+                      device,
+                      'shell input keyevent '
+                    ].join(" ")
+                  
+                    Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
+                    Action.sh(raw_command + 'KEYCODE_DPAD_DOWN')
+                    Action.sh(raw_command + 'KEYCODE_ENTER')
+                  end
                   dialog_command = [
                     adb_controller.adb_path,
                     "-s",
@@ -179,6 +191,8 @@ module Fastlane
                     'shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS'
                   ].join(" ")
                   Action.sh(dialog_command)
+                  UI.message(device + " Configured".green)
+
               end
               
               UI.message("Clear Dialogs broadcast sent!".green)
