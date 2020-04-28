@@ -2,8 +2,17 @@ module Fastlane
   module Provider
 
     class AVD_scheme
-      attr_accessor :avd_name, :create_avd_package, :create_avd_device, :create_avd_tag, :create_avd_abi, :create_avd_hardware_config_filepath, :create_avd_additional_options, 
-                    :launch_avd_port, :launch_avd_launch_binary_name, :launch_avd_additional_options, :launch_avd_snapshot_filepath
+      attr_accessor :avd_name,
+                    :create_avd_package, 
+                    :create_avd_device, 
+                    :create_avd_tag, 
+                    :create_avd_abi, 
+                    :create_avd_hardware_config_filepath, 
+                    :create_avd_additional_options, 
+                    :launch_avd_port, 
+                    :launch_avd_launch_binary_name, 
+                    :launch_avd_additional_options, 
+                    :launch_avd_snapshot_filepath
     end
 
     class AvdSchemeProvider
